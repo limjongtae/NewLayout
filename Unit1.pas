@@ -3,8 +3,9 @@ unit Unit1;
 interface
 
 uses
+  DragHandle, BaseDock,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Unit2, DragHandle, Vcl.StdCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
 
 type
   TForm1 = class(TForm)
@@ -19,7 +20,7 @@ type
 
 var
   Form1: TForm1;
-  BaseDock: FBaseDock;
+  BaseDock: TBaseDock;
   DrageHanler: FDrageHandle;
 
 implementation
@@ -28,7 +29,7 @@ implementation
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  BaseDock := FBaseDock.Create(Self);
+  BaseDock := TBaseDock.Create(Self);
   DrageHanler := FDrageHandle.Create(Self);
 end;
 

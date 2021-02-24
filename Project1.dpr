@@ -3,9 +3,10 @@ program Project1;
 uses
   Vcl.Forms,
   Unit1 in 'Unit1.pas' {Form1},
-  Unit2 in 'Unit2.pas',
+  BaseDock in 'BaseDock.pas',
   Utils in 'Utils.pas',
-  DragHandle in 'DragHandle.pas';
+  DragHandle in 'DragHandle.pas',
+  DockList in 'DockList.pas';
 
 {$R *.res}
 

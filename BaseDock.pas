@@ -1,12 +1,15 @@
-unit Unit2;
+unit BaseDock;
 
 interface
    uses  Utils,
          Classes, Controls, System.Types, Vcl.AppEvnts,Vcl.Graphics, Vcl.Forms, Winapi.Windows, Winapi.Messages;
 
    type
-     FBaseDock = class(TCustomControl)
+     TDockState = (bsClick, bsUnClick);
+
+     TBaseDock = class(TCustomControl)
      private
+       FDockState: TDockState;
        FEnabled: Boolean; // Dock상태값
        FApplicationEvents: TApplicationEvents; // MessageEvent
        procedure MessageReceivedHandler(var msg: tagMSG; var Handled: Boolean);
@@ -16,16 +19,19 @@ interface
 
        constructor Create(AOwner: TComponent);
        destructor Destroy; override;
+
+       property DockState: TDockState read FDockState write FDockState;
      end;
 
 implementation
 
 { FDock }
 
-constructor FBaseDock.Create(AOwner: TComponent);
+constructor TBaseDock.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   Parent := TWinControl(AOwner);
+  FDockState := bsUnClick;
 
   BorderWidth := 1;
   SetBounds(100, 100, 200, 200);
@@ -34,13 +40,13 @@ begin
   FApplicationEvents.OnMessage := MessageReceivedHandler; // 이벤트 핸들러 연결
 end;
 
-destructor FBaseDock.Destroy;
+destructor TBaseDock.Destroy;
 begin
   FApplicationEvents.Free;
   inherited Destroy;
 end;
 
-procedure FBaseDock.MessageReceivedHandler(var msg: tagMSG; var Handled: Boolean);
+procedure TBaseDock.MessageReceivedHandler(var msg: tagMSG; var Handled: Boolean);
 begin
   if not FEnabled then
   begin
@@ -60,25 +66,35 @@ begin
   end;
 end;
 
-procedure FBaseDock.MouseDownHandler(var msg: tagMSG);
+procedure TBaseDock.MouseDownHandler(var msg: tagMSG);
 var
   Control: TControl;
 begin
 
 //  if msg.hwnd =  TForm(Owner).Handle then
 //  begin
-    Control := Vcl.Controls.FindControl(msg.hwnd);
+//    Control := Vcl.Controls.FindControl(msg.hwnd);
 //    StartSizing(Control, MAKEPOINT(msg.lParam));
 //  end;
 
 
 end;
 
-procedure FBaseDock.Paint;
+procedure TBaseDock.Paint;
 begin
-  inherited;
 
+  Canvas.Pen.Style := psClear;
+  Canvas.Pen.Color := clBlack;
+  Canvas.Pen.Width := 3;
   Canvas.Brush.Color := clRed;
+  Canvas.Rectangle(ClientRect);
+
+  case FDockState of
+    bsClick : Canvas.DrawFocusRect(ClientRect);
+    bsUnClick :
+  end;
+
+
 end;
 
 end.

@@ -1,7 +1,7 @@
 unit DragHandle;
 
 interface
-  uses Utils,
+  uses Utils, BaseDock,
   VCL.Forms, VCL.Controls, VCL.Graphics, VCL.AppEvnts, Winapi.Windows, Winapi.Messages, System.Classes;
 
   type
@@ -21,7 +21,7 @@ interface
       constructor Create(AOwner: TComponent); override;
       destructor Destroy; override;
 
-      procedure Paint;
+      procedure Paint; override;
     end;
 
 implementation
@@ -34,32 +34,37 @@ begin
 
   Parent := TWinControl(AOwner);
   FOriginPoint := TPoint.Zero;
+  DoubleBuffered := True;
 
   if not (csDesigning in ComponentState) then
   begin
     FDragEvents := TApplicationEvents.Create(nil);
     FDragEvents.OnMessage := MessageReceivedHandler;
   end;
+
+  SendToBack;
 end;
 
 destructor FDrageHandle.Destroy;
 begin
-
+  FDragEvents.Free;
   inherited;
 end;
 
 procedure FDrageHandle.LeftDown(var msg: tagMSG);
 begin
+  Visible := True;
   FOriginPoint := MAKEPOINT(msg.lParam);
   FDragState := dsStart;
-  Visible := True;
 end;
 
 procedure FDrageHandle.LeftUp(var msg: tagMSG);
+var
+  Control: TControl;
 begin
+  Visible := False;
   FOriginPoint := TPoint.Zero;
   FDragState := dsEnd;
-  Visible := False;
 end;
 
 procedure FDrageHandle.MessageReceivedHandler(var msg: tagMSG;
@@ -77,24 +82,32 @@ procedure FDrageHandle.Move(var msg: tagMSG);
 var
   Shift: TShiftState;
   PT: TPoint;
+  Control: TControl;
 begin
   Shift := KeyboardStateToShiftState;
 
   if ssLeft in Shift then
   begin
     PT := MAKEPOINT(msg.lParam);
-    BoundsRect := Rect(FOriginPoint.X, FOriginPoint.Y, PT.X + FOriginPoint.X, PT.Y + FOriginPoint.Y);
-    Canvas.DrawFocusRect(ClientRect);
+    Control := FindVCLWindow(PT);
+
+    if Control is TBaseDock then
+    begin
+      TBaseDock(Control).DockState := bsClick;
+      TBaseDock(Control).Paint;
+    end;
+//      TCustomControl(Control).
+
+    BoundsRect := Rect(FOriginPoint.X, FOriginPoint.Y, PT.X, PT.Y);
   end;
 end;
 
 procedure FDrageHandle.Paint;
 begin
-  inherited;
-//  Canvas.Pen.Color := clRed;
-//  Canvas.FillRect(ClientRect);
-//  Canvas.Brush.Color := clGray;
-//  Canvas.Rectangle(0, 0, BoundsRect.Width, BoundsRect.Height);
+  Canvas.Pen.Style := psDot;
+  Canvas.Pen.Color := clBlack;
+  Canvas.Brush.Style := bsClear;
+  Canvas.Rectangle(ClientRect);
 end;
 
 end.
