@@ -21,7 +21,7 @@ type
 var
   Form1: TForm1;
   BaseDock: TBaseDock;
-  DrageHanler: FDrageHandle;
+  DrageHanler: TDrageHandle;
 
 implementation
 
@@ -30,7 +30,7 @@ implementation
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   BaseDock := TBaseDock.Create(Self);
-  DrageHanler := FDrageHandle.Create(Self);
+  DrageHanler := TDrageHandle.Create(Self);
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);

@@ -2,13 +2,17 @@ unit Dock.Interfaces;
 
 interface
 
-  uses BaseDock, Classes, Controls, Graphics, Windows, Messages, Forms, SysUtils, StdCtrls,
+  uses Classes, Controls, Graphics, Windows, Messages, Forms, SysUtils, StdCtrls,
        System.Generics.Collections;
 
   type
+    TDirection = (dBottom, dTop, dLeft, dRight);
+    TDirections = set of TDirection;
+
     IDockInterface = Interface
-      procedure AddDock(Dock: TBaseDock);
-      procedure DeleteDock(Dock: TBaseDock);
+      function GetDragRect: TRect;
+      function GetChildRect: TRect;
+      procedure UpdateDragRect(Rect: TRect; Direction: TDirections);
     End;
 
 implementation

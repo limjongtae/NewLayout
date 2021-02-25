@@ -7,7 +7,8 @@ uses
   Utils in 'Utils.pas',
   DragHandle in 'DragHandle.pas',
   DockList in 'DockList.pas',
-  Dock.Interfaces in 'Dock.Interfaces.pas';
+  Dock.Interfaces in 'Dock.Interfaces.pas',
+  DragDock in 'DragDock.pas';
 
 {$R *.res}
 

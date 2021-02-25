@@ -7,7 +7,7 @@ interface
   type
     TDragState = (dsStart, dsMove, dsEnd); // 움직이는중,
 
-    FDrageHandle = class(TCustomControl)
+    TDrageHandle = class(TCustomControl)
     private
       FOriginPoint: TPoint; // 처음 클릭한 포인트
       FDragEvents: TApplicationEvents;
@@ -28,7 +28,7 @@ implementation
 
 { FDrageHandle }
 
-constructor FDrageHandle.Create(AOwner: TComponent);
+constructor TDrageHandle.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
@@ -45,20 +45,20 @@ begin
   SendToBack;
 end;
 
-destructor FDrageHandle.Destroy;
+destructor TDrageHandle.Destroy;
 begin
   FDragEvents.Free;
   inherited;
 end;
 
-procedure FDrageHandle.LeftDown(var msg: tagMSG);
+procedure TDrageHandle.LeftDown(var msg: tagMSG);
 begin
   Visible := True;
   FOriginPoint := MAKEPOINT(msg.lParam);
   FDragState := dsStart;
 end;
 
-procedure FDrageHandle.LeftUp(var msg: tagMSG);
+procedure TDrageHandle.LeftUp(var msg: tagMSG);
 var
   Control: TControl;
 begin
@@ -67,7 +67,7 @@ begin
   FDragState := dsEnd;
 end;
 
-procedure FDrageHandle.MessageReceivedHandler(var msg: tagMSG;
+procedure TDrageHandle.MessageReceivedHandler(var msg: tagMSG;
   var Handled: Boolean);
 begin
    case msg.message of
@@ -78,7 +78,7 @@ begin
    end;
 end;
 
-procedure FDrageHandle.Move(var msg: tagMSG);
+procedure TDrageHandle.Move(var msg: tagMSG);
 var
   Shift: TShiftState;
   PT: TPoint;
@@ -102,7 +102,7 @@ begin
   end;
 end;
 
-procedure FDrageHandle.Paint;
+procedure TDrageHandle.Paint;
 begin
   Canvas.Pen.Style := psDot;
   Canvas.Pen.Color := clBlack;
