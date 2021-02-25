@@ -106,6 +106,7 @@
         <DCCReference Include="Utils.pas"/>
         <DCCReference Include="DragHandle.pas"/>
         <DCCReference Include="DockList.pas"/>
+        <DCCReference Include="Dock.Interfaces.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
