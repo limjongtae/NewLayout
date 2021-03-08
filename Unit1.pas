@@ -30,12 +30,12 @@ implementation
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   BaseDock := TBaseDock.Create(Self);
-  DrageHanler := TDrageHandle.Create(Self);
+//  DrageHanler := TDrageHandle.Create(Self);
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
-  DrageHanler.Free;
+//  DrageHanler.Free;
   BaseDock.Free;
 end;
 

@@ -40,7 +40,6 @@ type
   TDotDrageHandle = class(TDragDock)
   public
     constructor Create(AOwner: TComponent); override;
-    procedure Paint; override;
   end;
 
   // LineHandle
@@ -50,12 +49,10 @@ type
 
   THorizontalDragHandle = class(TLineDragHandle) // 가로
     constructor Create(AOwner: TComponent); override;
-    procedure Paint; override;
   end;
 
   TVerticalDragHandle = class(TLineDragHandle)  // 세로
     constructor Create(AOwner: TComponent); override;
-    procedure Paint; override;
   end;
 
   TMultiDirectionalDragHandle = class(TDragDock)
@@ -228,21 +225,21 @@ end;
 procedure TLeftDragHandle.UpdatePosition(Control: TControl);
 begin
   // 좌측
-//  Left := Control.Left - (Width div 2);
-//  Top := Control.Top + ((Control.Height - Height) div 2);
-
   Width := 2;
   Height := Control.Height;
 
-  Left := Control.Left - (Width * 2);
+  Left := Control.Left + Control.Width + (Width * 2);
   Top := Control.Top;
 end;
 
 procedure TRightDragHandle.UpdatePosition(Control: TControl);
 begin
   // 우측
-  Left := Control.Left + Control.Width - (Width div 2);
-  Top := Control.Top + ((Control.Height - Height) div 2);
+  Width := 2;
+  Height := Control.Height;
+
+  Left := Control.Left - (Width * 2);
+  Top := Control.Top;
 end;
 
 procedure TUpLeftDragHandle.UpdatePosition(Control: TControl);
@@ -278,25 +275,9 @@ begin
   inherited;
 end;
 
-procedure TVerticalDragHandle.Paint;
-begin
-  inherited;
-
-end;
-
 constructor THorizontalDragHandle.Create(AOwner: TComponent);
 begin
   inherited;
-end;
-
-procedure THorizontalDragHandle.Paint;
-begin
-  inherited;
-
-  Canvas.Pen.Color := FBorderColor;
-  Canvas.FillRect(ClientRect);
-  Canvas.Brush.Color := Color;
-  Canvas.Rectangle(0, 0, BoundsRect.Width, BoundsRect.Height);
 end;
 
 procedure TMultiDirectionalDragHandle.UpdateChildSize(Sender: TControl; X, Y: Integer);
@@ -384,15 +365,6 @@ constructor TDotDrageHandle.Create(AOwner: TComponent);
 begin
   inherited;
   Size := 8;
-end;
-
-procedure TDotDrageHandle.Paint;
-begin
-  inherited;
-  Canvas.Pen.Color := FBorderColor;
-  Canvas.FillRect(ClientRect);
-  Canvas.Brush.Color := Color;
-  Canvas.Rectangle(0, 0, BoundsRect.Width, BoundsRect.Height);
 end;
 
 { TLineDragHandle }
