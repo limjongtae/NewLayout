@@ -21,86 +21,99 @@ type
     function GetRectSide(const Rect: TRect; Direction: TDirection) : Integer;
     procedure SetSize(const Value: Byte);
   public
+    constructor Create(AOwner: TComponent); override;
+    procedure Paint; override;
+
+    procedure UpdateChildSize(Sender: TControl; X, Y: Integer); virtual; abstract;
+    procedure SetSizingOrigin(const X, Y: Integer);
+    procedure UpdatePosition(Control: TControl); virtual; abstract;
+
+
+
     property Color;
     property BorderColor : TColor read FBorderColor write FBorderColor;
     property DockInterface: IDockInterface read FDockInterface write FDockInterface;
     property Size: Byte read FSize write SetSize;
-    procedure UpdateChildSize(Sender: TControl; X, Y: Integer); virtual; abstract;
-    procedure SetSizingOrigin(const X, Y: Integer);
-    procedure UpdatePosition(Control: TControl); virtual; abstract;
+  end;
+
+  // DotHandle
+  TDotDrageHandle = class(TDragDock)
+  public
+    constructor Create(AOwner: TComponent); override;
     procedure Paint; override;
+  end;
+
+  // LineHandle
+  TLineDragHandle = class(TDragDock)
     constructor Create(AOwner: TComponent); override;
   end;
 
-  THorizontalDragHandle = class(TDragDock)
-    procedure UpdateChildSize(Sender: TControl; X, Y: Integer); override;
+  THorizontalDragHandle = class(TLineDragHandle) // 가로
+    constructor Create(AOwner: TComponent); override;
+    procedure Paint; override;
   end;
 
-  TVerticalDragHandle = class(TDragDock)
-    procedure UpdateChildSize(Sender: TControl; X, Y: Integer); override;
+  TVerticalDragHandle = class(TLineDragHandle)  // 세로
+    constructor Create(AOwner: TComponent); override;
+    procedure Paint; override;
   end;
 
   TMultiDirectionalDragHandle = class(TDragDock)
     procedure UpdateChildSize(Sender: TControl; X, Y: Integer); override;
   end;
 
-  TUpDragHandle = class(TVerticalDragHandle)
+  // Line Handle
+  TUpDragHandle = class(THorizontalDragHandle)
   public
     procedure UpdatePosition(Control: TControl); override;
     constructor Create(AOwner: TComponent); override;
   end;
 
-  TDownDragHandle = class(TVerticalDragHandle)
+  TDownDragHandle = class(THorizontalDragHandle)
   public
     procedure UpdatePosition(Control: TControl); override;
     constructor Create(AOwner: TComponent); override;
   end;
 
-  TLeftDragHandle = class(THorizontalDragHandle)
+  TLeftDragHandle = class(TVerticalDragHandle)
   public
     procedure UpdatePosition(Control: TControl); override;
     constructor Create(AOwner: TComponent); override;
   end;
 
-  TRightDragHandle = class(THorizontalDragHandle)
+  TRightDragHandle = class(TVerticalDragHandle)
   public
     procedure UpdatePosition(Control: TControl); override;
     constructor Create(AOwner: TComponent); override;
   end;
 
-  TUpLeftDragHandle = class(TMultiDirectionalDragHandle)
+
+  // Dot Handle
+  TUpLeftDragHandle = class(TDotDrageHandle)
   public
     procedure UpdatePosition(Control: TControl); override;
     constructor Create(AOwner: TComponent); override;
   end;
 
-  TUpRightDragHandle = class(TMultiDirectionalDragHandle)
+  TUpRightDragHandle = class(TDotDrageHandle)
   public
     procedure UpdatePosition(Control: TControl); override;
     constructor Create(AOwner: TComponent); override;
   end;
 
-  TDownLeftDragHandle = class(TMultiDirectionalDragHandle)
+  TDownLeftDragHandle = class(TDotDrageHandle)
   public
     procedure UpdatePosition(Control: TControl); override;
     constructor Create(AOwner: TComponent); override;
   end;
 
-  TDownRightDragHandle = class(TMultiDirectionalDragHandle)
+  TDownRightDragHandle = class(TDotDrageHandle)
   public
     procedure UpdatePosition(Control: TControl); override;
     constructor Create(AOwner: TComponent); override;
   end;
 
 implementation
-
-constructor TDragDock.Create;
-begin
-  inherited Create(AOwner);
-  Visible := False;
-  FClickOrigin := TPoint.Zero;
-  FBorderColor := RGB(0, 120, 215);
-end;
 
 procedure TDragDock.SetSize(const Value: Byte);
 begin
@@ -130,15 +143,6 @@ begin
     else
       FClickOrigin.Y := HalfWidth - Y;
   end;
-end;
-
-procedure TDragDock.Paint;
-begin
-  inherited;
-  Canvas.Pen.Color := FBorderColor;
-  Canvas.FillRect(ClientRect);
-  Canvas.Brush.Color := Color;
-  Canvas.Rectangle(0, 0, BoundsRect.Width, BoundsRect.Height);
 end;
 
 constructor TUpDragHandle.Create;
@@ -203,108 +207,96 @@ end;
 
 procedure TUpDragHandle.UpdatePosition(Control: TControl);
 begin
-  Left := Control.Left + ((Control.Width - Width) div 2);
-  Top := Control.Top - (Height div 2);
+  // 상단
+  Width := Control.Width;
+  Height := 2;
+
+  Left := Control.Left;
+  Top := Control.Top - (Height * 2);
 end;
 
 procedure TDownDragHandle.UpdatePosition(Control: TControl);
 begin
-  Left := Control.Left + ((Control.Width - Width) div 2);
-  Top := Control.Top + Control.Height - (Height div 2);
+  // 하단
+  Width := Control.Width;
+  Height := 2;
+
+  Left := Control.Left;
+  Top := Control.Top + Control.Height + (Height * 2);
 end;
 
 procedure TLeftDragHandle.UpdatePosition(Control: TControl);
 begin
-  Left := Control.Left - (Width div 2);
-  Top := Control.Top + ((Control.Height - Height) div 2);
+  // 좌측
+//  Left := Control.Left - (Width div 2);
+//  Top := Control.Top + ((Control.Height - Height) div 2);
+
+  Width := 2;
+  Height := Control.Height;
+
+  Left := Control.Left - (Width * 2);
+  Top := Control.Top;
 end;
 
 procedure TRightDragHandle.UpdatePosition(Control: TControl);
 begin
+  // 우측
   Left := Control.Left + Control.Width - (Width div 2);
   Top := Control.Top + ((Control.Height - Height) div 2);
 end;
 
 procedure TUpLeftDragHandle.UpdatePosition(Control: TControl);
 begin
-  Left := Control.Left - (Width div 2);
-  Top := Control.Top - (Height div 2);
+  // 좌측상단
+  Left := Control.Left - Width;
+  Top := Control.Top - Height;
 end;
 
 procedure TDownLeftDragHandle.UpdatePosition(Control: TControl);
 begin
-  Left := Control.Left - (Width div 2);
-  Top := Control.Top + Control.Height - (Height div 2);
+  // 좌측하단
+  Left := Control.Left - Width;
+  Top := Control.Top + Control.Height;
 end;
 
 procedure TUpRightDragHandle.UpdatePosition(Control: TControl);
 begin
-  Left := Control.BoundsRect.Right - (Width div 2);
-  Top := Control.Top - (Height div 2);
+  // 우측상단
+  Left := Control.BoundsRect.Right;
+  Top := Control.Top - Height;
 end;
 
 procedure TDownRightDragHandle.UpdatePosition(Control: TControl);
 begin
-  Left := Control.BoundsRect.Right - (Width div 2);
-  Top := Control.Top + Control.Height - (Height div 2);
+  // 우측하단
+  Left := Control.BoundsRect.Right;
+  Top := Control.Top + Control.Height;
 end;
 
-procedure TVerticalDragHandle.UpdateChildSize(Sender: TControl; X, Y: Integer);
-var
-  DragRect: TRect;
-  ChildRect: TRect;
-  VerticalFix: Integer;
+constructor TVerticalDragHandle.Create(AOwner: TComponent);
 begin
-//  DragRect := FFormDesigner.GetDragRect();
-//  ChildRect := FFormDesigner.GetChildRect();
-//  VerticalFix := GetRectSide(ChildRect, FVerticalFix);
-//  with DragRect do
-//  begin
-//    if (Y <> Top) and (Y <> Bottom) then
-//    begin
-//      if Y >= VerticalFix then
-//      begin
-//        Top := VerticalFix;
-//        Bottom := Y + FClickOrigin.Y;
-//        FFormDesigner.UpdateDragRect(DragRect, [dBottom]);
-//      end
-//      else
-//      begin
-//        Top := Y + FClickOrigin.Y;
-//        Bottom := VerticalFix;
-//        FFormDesigner.UpdateDragRect(DragRect, [dTop]);
-//      end;
-//    end;
-//  end;
+  inherited;
 end;
 
-procedure THorizontalDragHandle.UpdateChildSize(Sender: TControl; X: Integer; Y: Integer);
-var
-  DragRect: TRect;
-  ChildRect: TRect;
-  HorizontalFix: Integer;
+procedure TVerticalDragHandle.Paint;
 begin
-//  DragRect := FFormDesigner.GetDragRect();
-//  ChildRect := FFormDesigner.GetChildRect();
-//  HorizontalFix := GetRectSide(ChildRect, FHorizontalFix);
-//  with DragRect do
-//  begin
-//    if (X <> Right) and (X <> Left) then
-//    begin
-//      if X > HorizontalFix then
-//      begin
-//        Left := HorizontalFix;
-//        Right := X + FClickOrigin.X;
-//        FFormDesigner.UpdateDragRect(DragRect, [dRight]);
-//      end
-//      else
-//      begin
-//        Left := X + FClickOrigin.X;
-//        Right := HorizontalFix;
-//        FFormDesigner.UpdateDragRect(DragRect, [dLeft]);
-//      end;
-//    end;
-//  end;
+  inherited;
+
+end;
+
+constructor THorizontalDragHandle.Create(AOwner: TComponent);
+begin
+  inherited;
+end;
+
+procedure THorizontalDragHandle.Paint;
+begin
+  inherited;
+
+  Canvas.Pen.Color := FBorderColor;
+  Canvas.FillRect(ClientRect);
+  Canvas.Brush.Color := Color;
+  Canvas.Rectangle(0, 0, BoundsRect.Width, BoundsRect.Height);
 end;
 
 procedure TMultiDirectionalDragHandle.UpdateChildSize(Sender: TControl; X, Y: Integer);
@@ -313,45 +305,54 @@ var
   ChildRect: TRect;
   HorizontalFix, VerticalFix: Integer;
 begin
-//  DragRect := FFormDesigner.GetDragRect();
-//  ChildRect := FFormDesigner.GetChildRect();
-//  HorizontalFix := GetRectSide(ChildRect, FHorizontalFix);
-//  VerticalFix := GetRectSide(ChildRect, FVerticalFix);
-//  with DragRect do
-//  begin
-//    if (X > HorizontalFix) and (Y > VerticalFix) then
-//    begin
-//      Left := HorizontalFix;
-//      Top := VerticalFix;
-//      Right := X + FClickOrigin.X;
-//      Bottom := Y + FClickOrigin.Y;
-//      FFormDesigner.UpdateDragRect(DragRect, [dRight, dBottom]);
-//    end;
-//    if (X < HorizontalFix) and (Y > VerticalFix) then
-//    begin
-//      Left := X + FClickOrigin.X;
-//      Top := VerticalFix;
-//      Right := HorizontalFix;
-//      Bottom := Y + FClickOrigin.Y;
-//      FFormDesigner.UpdateDragRect(DragRect, [dLeft, dBottom]);
-//    end;
-//    if (X > HorizontalFix) and (Y < VerticalFix) then
-//    begin
-//      Left := HorizontalFix;
-//      Top := Y + FClickOrigin.Y;
-//      Right := X + FClickOrigin.X;
-//      Bottom := VerticalFix;
-//      FFormDesigner.UpdateDragRect(DragRect, [dRight, dTop]);
-//    end;
-//    if (X < HorizontalFix) and (Y < VerticalFix) then
-//    begin
-//      Left := X + FClickOrigin.X;
-//      Top := Y + FClickOrigin.Y;
-//      Right := HorizontalFix;
-//      Bottom := VerticalFix;
-//      FFormDesigner.UpdateDragRect(DragRect, [dLeft, dTop]);
-//    end;
-//  end;
+  DragRect := FDockInterface.GetDragRect();
+  ChildRect := FDockInterface.GetChildRect();
+  HorizontalFix := GetRectSide(ChildRect, FHorizontalFix);
+  VerticalFix := GetRectSide(ChildRect, FVerticalFix);
+  with DragRect do
+  begin
+    if (X > HorizontalFix) and (Y > VerticalFix) then
+    begin
+      Left := HorizontalFix;
+      Top := VerticalFix;
+      Right := X + FClickOrigin.X;
+      Bottom := Y + FClickOrigin.Y;
+      FDockInterface.UpdateDragRect(DragRect, [dRight, dBottom]);
+    end;
+    if (X < HorizontalFix) and (Y > VerticalFix) then
+    begin
+      Left := X + FClickOrigin.X;
+      Top := VerticalFix;
+      Right := HorizontalFix;
+      Bottom := Y + FClickOrigin.Y;
+      FDockInterface.UpdateDragRect(DragRect, [dLeft, dBottom]);
+    end;
+    if (X > HorizontalFix) and (Y < VerticalFix) then
+    begin
+      Left := HorizontalFix;
+      Top := Y + FClickOrigin.Y;
+      Right := X + FClickOrigin.X;
+      Bottom := VerticalFix;
+      FDockInterface.UpdateDragRect(DragRect, [dRight, dTop]);
+    end;
+    if (X < HorizontalFix) and (Y < VerticalFix) then
+    begin
+      Left := X + FClickOrigin.X;
+      Top := Y + FClickOrigin.Y;
+      Right := HorizontalFix;
+      Bottom := VerticalFix;
+      FDockInterface.UpdateDragRect(DragRect, [dLeft, dTop]);
+    end;
+  end;
+end;
+
+constructor TDragDock.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  Visible := False;
+  FClickOrigin := TPoint.Zero;
+  FBorderColor := RGB(0, 120, 215);
+  Color := RGB(178, 214, 243);
 end;
 
 function TDragDock.GetRectSide(const Rect: TRect; Direction: TDirection): Integer;
@@ -366,6 +367,39 @@ begin
   RectType := TRTTIContext.Create.GetType(TypeInfo(TRect));
   Field := RectType.GetField(DirectionStr);
   Result := Field.GetValue(@Rect).AsInteger;
+end;
+
+procedure TDragDock.Paint;
+begin
+  inherited;
+  Canvas.Pen.Color := FBorderColor;
+  Canvas.FillRect(ClientRect);
+  Canvas.Brush.Color := Color;
+  Canvas.Rectangle(0, 0, BoundsRect.Width, BoundsRect.Height);
+end;
+
+{ TDotDrageHandle }
+
+constructor TDotDrageHandle.Create(AOwner: TComponent);
+begin
+  inherited;
+  Size := 8;
+end;
+
+procedure TDotDrageHandle.Paint;
+begin
+  inherited;
+  Canvas.Pen.Color := FBorderColor;
+  Canvas.FillRect(ClientRect);
+  Canvas.Brush.Color := Color;
+  Canvas.Rectangle(0, 0, BoundsRect.Width, BoundsRect.Height);
+end;
+
+{ TLineDragHandle }
+
+constructor TLineDragHandle.Create(AOwner: TComponent);
+begin
+  inherited;
 end;
 
 end.

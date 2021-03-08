@@ -37,6 +37,7 @@ interface
 
   const
 
+  // DragControls
   DragDockClasses: array [0 .. 7] of TDragDockClass = (TUpDragHandle,
     TDownDragHandle, TLeftDragHandle, TRightDragHandle, TUpLeftDragHandle,
     TUpRightDragHandle, TDownLeftDragHandle, TDownRightDragHandle);
@@ -54,36 +55,36 @@ begin
   Parent := TWinControl(AOwner);
   FDockState := bsUnClick;
   FGridGap := 8;
-  BorderWidth := 1;
-  SetBounds(100, 100, 200, 200);
+  SetBounds(100, 100, 100, 100);
 
   FDragRect := Rect(ClientRect.Left - FGridGap, ClientRect.Top - FGridGap, ClientRect.Width + FGridGap, ClientRect.Height + FGridGap);
 
   FApplicationEvents := TApplicationEvents.Create(nil);
   FApplicationEvents.OnMessage := MessageReceivedHandler; // 이벤트 핸들러 연결
 
+  // DragHandle Create
   for DragDockClass in DragDockClasses do
   begin
     DragDock := DragDockClass.Create(Self);
     with DragDock  do
     begin
-      Size := 8;
+//      Size := 8;
       Color := RGB(178, 214, 243);
-      BorderColor := RGB(0, 120, 215);
       DockInterface := Self;
     end;
     InsertComponent(DragDock);
   end;
 
-  ForEachDragHandle(
-    procedure(DragDock: TDragDock)
-    begin
-      DragDock.SetSizingOrigin(Self.Left, Self.Top);
-      DragDock.UpdatePosition(Self);
-      DragDock.Parent := Self;
-      DragDock.BringToFront;
-      DragDock.Visible := True;
-    end);
+  // DragHandle Size Setting
+//  ForEachDragHandle(
+//    procedure(DragDock: TDragDock)
+//    begin
+////      DragDock.SetSizingOrigin(Self.Left, Self.Top);
+//      DragDock.UpdatePosition(Self);
+//      DragDock.Parent := TWinControl(AOwner);
+//      DragDock.BringToFront;
+//      DragDock.Visible := True;
+//    end);
 end;
 
 destructor TBaseDock.Destroy;
@@ -137,6 +138,12 @@ var
 begin
   Control := Vcl.Controls.FindControl(msg.hwnd);
   PT := MAKEPOINT(msg.lParam);
+
+  if Control is TDragDock then
+  begin
+    TDragDock(Control).UpdatePosition(Control);
+  end;
+
 
 //  if msg.hwnd =  TForm(Owner).Handle then
 //  begin
